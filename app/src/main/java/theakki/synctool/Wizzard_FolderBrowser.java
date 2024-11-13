@@ -18,6 +18,8 @@ import theakki.synctool.Data.StringTree;
 import theakki.synctool.Helper.FileItemHelper;
 import theakki.synctool.View.TreeItemHolder;
 
+import android.os.Environment;
+
 import static junit.framework.Assert.*;
 
 /**
@@ -47,12 +49,18 @@ public class Wizzard_FolderBrowser extends AppCompatActivity
         // Get the view from new_activity.xml
         setContentView(R.layout.activity_folderbrowser);
 
+        // Get SD-Path
+        String sdCardPath = getSDCardPath();
+        // and show it
+        if (sdCardPath != null) {
+            _PathOffset = sdCardPath;
+        }
+
         String pathOffset = null;
         Bundle extras = getIntent().getExtras();
         if(extras != null)
         {
             pathOffset = extras.getString(EXTRA_RECEIVE_PATH_OFFSET);
-
             StringTree data = extras.getParcelable(EXTRA_RECEIVE_FOLDERS);
             _treeData = transform(data);
         }
@@ -102,6 +110,14 @@ public class Wizzard_FolderBrowser extends AppCompatActivity
         fl.addView(treeView.getView());
     }
 
+    private String getSDCardPath() {
+        String sdCardPath = null;
+        File[] externalStorageDirs = ContextCompat.getExternalFilesDirs(this, null);
+        if (externalStorageDirs.length > 1) {
+            sdCardPath = externalStorageDirs[1].getAbsolutePath();  // SD-Card should be the second path
+        }
+        return sdCardPath;
+    }
 
     private void onItemClicked(TreeNode node, Object value)
     {
@@ -135,6 +151,7 @@ public class Wizzard_FolderBrowser extends AppCompatActivity
     private TreeNode transform(StringTree st)
     {
         TreeNode root = TreeNode.root();
+        String rootPath = getSDCardPath();
         transform(root, st, File.separator, 0);
         return root;
     }
